@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>가온 공화국</title>
+<meta name="description" content="카카오톡 오픈채팅 가상국가 놀이 사이트. 법적 효력이 없는 가상의 나라입니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;800&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#intro" aria-label="가온 공화국 처음으로">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#0f5b57"/>
+        <circle cx="24" cy="24" r="18.5" fill="none" stroke="#e4bf6a" stroke-width="1.2"/>
+        <circle cx="24" cy="21" r="6" fill="#e4bf6a"/>
+        <path d="M24 40V27M24 33c-4-.2-7-2.6-7.6-6.4 4 .2 7 2.4 7.6 6.4zM24 31c3.6-.2 6.4-2.4 7-6-3.6.2-6.4 2.2-7 6z" fill="none" stroke="#e4bf6a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span><b>가온 공화국</b><small>GAON REPUBLIC</small></span>
+    </a>
+    <nav class="nav" aria-label="주요 메뉴">
+      <a href="#me">내 시민증</a>
+      <a href="#verify">진위 확인</a>
+      <a href="#registry">국민 명부</a>
+      <a href="#constitution">헌법</a>
+    </nav>
+  </header>
+  <p class="banner"><b>가상국가 놀이 사이트</b> 오픈채팅방 안에서만 쓰는 가상의 나라입니다. 실제 국가나 기관과 관계없고, 시민증은 법적 효력이 없습니다.</p>
+  <p class="banner warn" id="setup-warning" hidden><b>설정 필요</b> firebase-config.js에 Firebase 설정값을 붙여넣어야 로그인과 명부가 작동합니다.</p>
+
+  <section id="intro">
+    <div class="intro">
+      <div>
+        <h1>모두가 함께 세우고<br>함께 노는 나라</h1>
+        <p>이메일로 가입하고 인증을 마치면 나만의 시민증이 발급됩니다. 시민번호는 서버가 순서대로 매기기 때문에 다른 사람이 흉내 낼 수 없고, 누구나 진위 확인에서 진짜인지 조회할 수 있습니다.</p>
+        <a class="cta" href="#me">시민증 받기</a>
+      </div>
+      <dl class="facts">
+        <div><dt>건국일</dt><dd>2026.11.08</dd></div>
+        <div><dt>국가 형태</dt><dd>놀이 공화국</dd></div>
+        <div><dt>공용어</dt><dd>한국어</dd></div>
+        <div><dt>행정구역</dt><dd>4개 구</dd></div>
+        <div><dt>현재 인구</dt><dd><span id="pop">–</span>명</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="me">
+    <div class="sec-h"><h2>내 시민증</h2><p id="me-sub">로그인하면 내 시민증을 볼 수 있습니다.</p></div>
+
+    <!-- 로그아웃 상태 -->
+    <div id="v-out" class="panel">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-login" aria-selected="true">로그인</button>
+        <button type="button" role="tab" id="tab-signup" aria-selected="false">가입하기</button>
+      </div>
+      <form id="f-login" novalidate>
+        <label for="li-email">이메일<input type="email" id="li-email" autocomplete="email" required></label>
+        <label for="li-pw">비밀번호<input type="password" id="li-pw" autocomplete="current-password" required></label>
+        <div class="row">
+          <button class="btn" type="submit">로그인</button>
+          <button class="link" type="button" id="btn-reset">비밀번호를 잊었어요</button>
+        </div>
+      </form>
+      <form id="f-signup" novalidate hidden>
+        <label for="su-email">이메일 <span class="hint">로그인과 인증 메일에만 쓰이고 공개되지 않습니다.</span><input type="email" id="su-email" autocomplete="email" required></label>
+        <label for="su-pw">비밀번호 <span class="hint">8자 이상. 다른 사이트와 다른 비밀번호를 쓰세요.</span><input type="password" id="su-pw" autocomplete="new-password" minlength="8" required></label>
+        <label for="su-pw2">비밀번호 확인<input type="password" id="su-pw2" autocomplete="new-password" required></label>
+        <div class="row"><button class="btn" type="submit">가입하고 인증 메일 받기</button></div>
+      </form>
+    </div>
+
+    <!-- 이메일 인증 대기 -->
+    <div id="v-verify" class="panel" hidden>
+      <p class="lead"><b id="vf-email"></b>(으)로 인증 메일을 보냈습니다. 메일의 링크를 누른 뒤 아래 버튼을 눌러 주세요.</p>
+      <p class="note">메일이 안 보이면 스팸함을 확인하세요. 카카오톡 안에서 열었다면 메일 앱에서 링크를 누른 뒤 이 화면으로 돌아오면 됩니다.</p>
+      <div class="row">
+        <button class="btn" type="button" id="btn-verified">인증을 마쳤어요</button>
+        <button class="btn ghost" type="button" id="btn-resend">인증 메일 다시 보내기</button>
+        <button class="link" type="button" data-logout>로그아웃</button>
+      </div>
+    </div>
+
+    <!-- 시민권 신청 -->
+    <div id="v-apply" class="apply" hidden>
+      <form id="f-apply" class="panel" novalidate>
+        <label for="ap-name">시민 이름 <span class="hint">한글·영문·숫자·_ 2~12자. 한 번 정하면 바꿀 수 없습니다. 실명은 쓰지 마세요.</span>
+          <input type="text" id="ap-name" maxlength="12" autocomplete="off" placeholder="예: 바람결">
+        </label>
+        <label for="ap-region">거주 구<select id="ap-region"></select></label>
+        <label for="ap-job">직업<select id="ap-job"></select></label>
+        <label for="ap-reason">입국 사유 <span class="hint">선택 사항, 80자 이내</span>
+          <textarea id="ap-reason" maxlength="80" placeholder="예: 친구 따라 왔어요"></textarea>
+        </label>
+        <label for="ap-photo">사진 <span class="hint">선택 사항. 얼굴 사진 대신 그림이나 캐릭터를 권장합니다. 비워 두면 기본 초상이 그려집니다.</span>
+          <input type="file" id="ap-photo" accept="image/*">
+        </label>
+        <label class="check" for="ap-agree">
+          <input type="checkbox" id="ap-agree">
+          <span>헌법을 읽었으며, 이 시민증이 현실에서 법적 효력이 없음을 이해합니다.</span>
+        </label>
+        <div class="row">
+          <button class="btn" type="submit" id="btn-apply">시민증 발급</button>
+          <button class="link" type="button" data-logout>로그아웃</button>
+        </div>
+      </form>
+      <div class="side-note">
+        <h3>발급 전에 확인하세요</h3>
+        <ul>
+          <li>한 계정에 시민증은 하나만 나옵니다.</li>
+          <li>발급 후에는 이름, 거주 구, 직업을 바꿀 수 없습니다. 바꾸려면 방장에게 요청하세요.</li>
+          <li>시민번호는 발급 순서대로 서버가 매깁니다.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 시민증 보유 -->
+    <div id="v-card" class="card-col" hidden>
+      <div class="card-wrap"><div class="card" id="my-card"></div></div>
+      <div class="row">
+        <button class="btn ghost" type="button" id="btn-copy">시민번호 복사</button>
+        <button class="link" type="button" data-logout>로그아웃</button>
+        <span class="note" id="copy-msg" aria-live="polite"></span>
+      </div>
+      <p class="note">채팅방에 시민증을 올릴 때는 화면을 캡처하세요. 다른 사람은 시민번호로 진위 확인을 할 수 있습니다.</p>
+    </div>
+
+    <p class="msg" id="me-msg" role="status"></p>
+  </section>
+
+  <section id="verify">
+    <div class="sec-h"><h2>시민증 진위 확인</h2><p>로그인 없이 누구나 조회할 수 있습니다.</p></div>
+    <form id="f-verify" class="verify-form" novalidate>
+      <label for="vr-num" class="sr">시민번호</label>
+      <input type="text" id="vr-num" placeholder="GA-261108-0001A" autocomplete="off" spellcheck="false">
+      <button class="btn" type="submit">조회</button>
+    </form>
+    <div id="vr-result" aria-live="polite"></div>
+  </section>
+
+  <section id="registry">
+    <div class="sec-h"><h2>국민 명부</h2><p>최근 발급 순으로 100명까지 보여 줍니다.</p></div>
+    <div class="tools">
+      <label for="q" class="inline-lbl"><span>이름 검색</span><input type="text" id="q" placeholder="이름 또는 시민번호" autocomplete="off"></label>
+      <button class="btn ghost" type="button" id="btn-refresh">새로고침</button>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>시민번호</th><th>이름</th><th>거주 구</th><th>직업</th><th>발급일</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="none">명부를 불러오는 중입니다.</div>
+    </div>
+  </section>
+
+  <section id="constitution">
+    <div class="sec-h"><h2>가온 공화국 헌법</h2><p>2026년 11월 8일 제정</p></div>
+    <div class="law">
+      <p class="pre">우리 가온 공화국 시민은 서로를 존중하며 즐겁게 놀기 위해 이 헌법을 세운다.</p>
+      <ol>
+        <li><small>제1조</small><b>국가</b>가온 공화국은 채팅방 시민이 함께 만드는 가상국가이며, 현실의 어떤 국가나 기관과도 관계가 없다.</li>
+        <li><small>제2조</small><b>주권</b>주권은 시민에게 있고, 모든 권한은 시민으로부터 나온다.</li>
+        <li><small>제3조</small><b>시민권</b>이메일 인증을 마치고 시민증을 발급받은 사람은 가온 공화국의 시민이다. 한 사람은 하나의 시민증만 가진다.</li>
+        <li><small>제4조</small><b>시민증의 효력</b>시민증은 이 나라 안에서만 쓰며 현실에서 법적 효력이 없다. 현실의 신분증처럼 쓰거나 그렇게 보이도록 꾸며서는 안 된다.</li>
+        <li><small>제5조</small><b>개인정보</b>이메일은 로그인에만 쓰이며 공개되지 않는다. 실명, 주민등록번호, 연락처, 실제 얼굴 사진은 신청서에 쓰지 않는다.</li>
+        <li><small>제6조</small><b>평등</b>모든 시민은 이 나라 안에서 평등하며 나이, 출신, 직업으로 차별받지 않는다.</li>
+        <li><small>제7조</small><b>표현</b>시민은 자유롭게 말할 수 있다. 다만 욕설, 혐오, 타인 사칭, 도배는 제한한다.</li>
+        <li><small>제8조</small><b>운영</b>방장은 국가원수로서 나라를 운영하고, 중요한 일은 시민 투표로 정한다.</li>
+        <li><small>제9조</small><b>탈퇴</b>시민은 언제든지 방을 나갈 수 있고, 방장에게 시민증 삭제를 요청할 수 있다.</li>
+        <li><small>제10조</small><b>개정</b>이 헌법은 시민 투표의 과반수 찬성으로 고칠 수 있다.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>가온 공화국은 카카오톡 오픈채팅 가상국가 놀이를 위한 가상의 사이트입니다. 현실의 국가, 정부기관, 신분증과 관계가 없으며 법적 효력이 없습니다.</footer>
+</div>
+</body>
+</html>
